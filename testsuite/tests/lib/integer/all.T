@@ -9,6 +9,7 @@ test('fromToInteger', normal, makefile_test, ['fromToInteger'])
 
 test('IntegerConversionRules', normal, makefile_test, ['IntegerConversionRules'])
 test('gcdInteger', normal, compile_and_run, [''])
+test('nativeWordGcd', normal, compile_and_run, ['-package ghc-internal'])
 test('gcdeInteger', normal, compile_and_run, [''])
 test('integerPowMod', [], compile_and_run, [''])
 test('integerGcdExt', [], compile_and_run, [''])

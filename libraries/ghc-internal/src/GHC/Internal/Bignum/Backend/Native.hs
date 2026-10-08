@@ -808,17 +808,40 @@ bignat_gcd_word a b = bignat_gcd_word_word b (bigNatRemWord# a b)
 --
 -- Result GCD is returned.
 --
--- This operation doesn't really belongs here, but GMP's one is much faster
--- than this simple implementation (basic Euclid algorithm).
---
--- Ideally we should make an implementation as fast as GMP's one and put it into
--- GHC.Internal.Bignum.Primitives.
+-- Use binary GCD: remove the common power of two, then repeatedly subtract
+-- the smaller odd operand and remove the trailing zero bits of the difference.
+-- The zero and equality cases keep every trailing-zero count below the word
+-- size, as required by the unchecked shifts.
 bignat_gcd_word_word
    :: Word#
    -> Word#
    -> Word#
 bignat_gcd_word_word a 0## = a
-bignat_gcd_word_word a b   = bignat_gcd_word_word b (a `remWord#` b)
+bignat_gcd_word_word 0## b = b
+bignat_gcd_word_word a b
+   | isTrue# (a `ltWord#` b) = reduce a (b `remWord#` a)
+   | True                    = reduce b (a `remWord#` b)
+   where
+      -- One Euclidean step handles very unequal operands before entering
+      -- the subtraction loop, and finishes immediately if either divides
+      -- the other.
+      reduce x 0## = x
+      reduce x y =
+         let !commonTwos = word2Int# (ctz# (x `or#` y))
+         in gcdOdd (oddPart x) (oddPart y) `uncheckedShiftL#` commonTwos
+      oddPart w = w `uncheckedShiftRL#` word2Int# (ctz# w)
+      gcdOdd 1## _ = 1##
+      gcdOdd _ 1## = 1##
+      gcdOdd x y
+         | isTrue# (x `eqWord#` y) = x
+         | True =
+            -- Select the smaller operand and the absolute difference without
+            -- an unpredictable branch on the ordering of successive pairs.
+            let !mask = int2Word# (negateInt# (x `ltWord#` y))
+                !difference = x `minusWord#` y
+                !smaller = y `xor#` ((x `xor#` y) `and#` mask)
+                !distance = (difference `xor#` mask) `minusWord#` mask
+            in gcdOdd (oddPart distance) smaller
 
 -- | Encode (# BigNat mantissa, Int# exponent #) into a Double#
 bignat_encode_double :: WordArray# -> Int# -> Double#
