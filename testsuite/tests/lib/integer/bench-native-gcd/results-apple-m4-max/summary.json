@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-09",
+  "environment": {
+    "cpu": "Apple M4 Max",
+    "machine": "arm64",
+    "platform": "macOS-15.6-arm64-arm-64bit",
+    "ghc": "The Glorious Glasgow Haskell Compilation System, version 9.12.2",
+    "optimization": "-O2; native code generator"
+  },
+  "source": {
+    "Before": {
+      "revision": "65bcf9e9116c3a8170d3a7e568f2a35f4bd7c3b8",
+      "source_sha256": "24b120632287f1aa69d57bfeea4f9824aecf6f068609aec280d815f406b2374a",
+      "adapted_sha256": "8add383678816d95ecbac69722f70bab1a1b27d6d22af7f4a6676a259a63956a"
+    },
+    "After": {
+      "revision": "daf277c904b19b371cad15ef61e1cf98fa7afd7b",
+      "source_sha256": "e2fafd9a070aacfe59d684aa80bb054788fca720a28b4cd2b1aeda8f09d54067",
+      "adapted_sha256": "5d9ebaac8b9426d185084f5f0df82a14c2cc39a4d23ebf190b7d279388204e75"
+    }
+  },
+  "main_sha256": "3760ea52d0da04dc220c76f532eff20d152f4db94430ee4f7268fd75bf8a977e",
+  "samples_sha256": "e791a743dafc1ecc27651a7bb058f9c0c66993caf59b0037540cc72ee096608d",
+  "reproduce": "python3 testsuite/tests/lib/integer/bench-native-gcd/benchmark.py --ghc /path/to/ghc-9.12 --before 65bcf9e9116c3a8170d3a7e568f2a35f4bd7c3b8 --after daf277c904b19b371cad15ef61e1cf98fa7afd7b --output /tmp/native-gcd-results --samples 15 --target-ms 75",
+  "method": "Complete native modules; pre-generated inputs checked against Integer gcd outside timing; direct unboxed calls; alternating order; changing corpus and nonce per sample; calibrated call count; CPU and wall clocks; paired medians and 10000 bootstrap resamples.",
+  "scope": "64-bit native backend, host GHC 9.12 code generation. Multiword cases compose native remainder and word GCD on valid multiword operands. No full patched compiler, public Integer instance, or GMP-backend speedup is measured. Timed allocation statistics include fixed measurement bookkeeping.",
+  "validation": {
+    "all_paired_checksums_match": true,
+    "input_pair_checks_per_version": 1638400
+  },
+  "findings": [
+    "Random 32-bit and 64-bit word inputs improve about 1.25x; shared powers of two improve about 1.31x.",
+    "Native multiword-remainder plus word-GCD composition improves about 1.22x at 128 bits and 1.15x at 256 bits. The 1024- and 4096-bit confidence intervals include 1.0, so these measurements do not establish a gain there.",
+    "Neighboring inputs regress from about 2.52 to 3.05 ns; zero second operands regress from 1.54 to 1.66 ns. Equal, exactly divisible and unit cases do not show a clear change.",
+    "CPU and wall-time results agree. No sample had a timed garbage collection; allocation counters include only small fixed timing/bookkeeping costs.",
+    "These compare the native backend before/after. The installed compiler and its public Integer/Natural instances are unchanged; there is no demonstrated GMP-backed application gain.",
+    "Bootstrap intervals describe these 15 paired samples on one machine and compiler, not portability or whole-application performance."
+  ],
+  "results": {
+    "random64": {
+      "paired_samples": 15,
+      "before_median_ns": 140.379805,
+      "after_median_ns": 112.80101,
+      "median_paired_speedup": 1.245765535242721,
+      "bootstrap_95_percent_interval": [
+        1.2380252775699094,
+        1.2544036233574616
+      ],
+      "median_wall_speedup": 1.245802076088942,
+      "maximum_allocated_bytes_per_call": 0.011050916503317309,
+      "maximum_timed_gcs": 0
+    },
+    "random32": {
+      "paired_samples": 15,
+      "before_median_ns": 70.077972,
+      "after_median_ns": 56.180358,
+      "median_paired_speedup": 1.2445732573244699,
+      "bootstrap_95_percent_interval": [
+        1.2366118051482642,
+        1.2530402324209584
+      ],
+      "median_wall_speedup": 1.2446310822027478,
+      "maximum_allocated_bytes_per_call": 0.004857476937505072,
+      "maximum_timed_gcs": 0
+    },
+    "random8": {
+      "paired_samples": 15,
+      "before_median_ns": 10.628066,
+      "after_median_ns": 5.885318,
+      "median_paired_speedup": 1.896410148530676,
+      "bootstrap_95_percent_interval": [
+        1.7402603569339372,
+        1.9715362874189637
+      ],
+      "median_wall_speedup": 1.896216416293353,
+      "maximum_allocated_bytes_per_call": 0.0005509087607752962,
+      "maximum_timed_gcs": 0
+    },
+    "small-divisor": {
+      "paired_samples": 15,
+      "before_median_ns": 11.980311,
+      "after_median_ns": 6.395761,
+      "median_paired_speedup": 1.8203840997424392,
+      "bootstrap_95_percent_interval": [
+        1.6677697045689144,
+        1.954297859234829
+      ],
+      "median_wall_speedup": 1.8208123539318746,
+      "maximum_allocated_bytes_per_call": 0.0007129407788969529,
+      "maximum_timed_gcs": 0
+    },
+    "powers-of-two": {
+      "paired_samples": 15,
+      "before_median_ns": 70.77464,
+      "after_median_ns": 5.591826,
+      "median_paired_speedup": 12.656802983497698,
+      "bootstrap_95_percent_interval": [
+        12.371295126468985,
+        13.103712814915951
+      ],
+      "median_wall_speedup": 12.66020557419728,
+      "maximum_allocated_bytes_per_call": 0.00048235678224927043,
+      "maximum_timed_gcs": 0
+    },
+    "shared-power": {
+      "paired_samples": 15,
+      "before_median_ns": 101.788595,
+      "after_median_ns": 77.621425,
+      "median_paired_speedup": 1.3100262626731722,
+      "bootstrap_95_percent_interval": [
+        1.3086480482051959,
+        1.315321111407063
+      ],
+      "median_wall_speedup": 1.3097117544186476,
+      "maximum_allocated_bytes_per_call": 0.006473386094061458,
+      "maximum_timed_gcs": 0
+    },
+    "equal": {
+      "paired_samples": 15,
+      "before_median_ns": 1.938464,
+      "after_median_ns": 1.93401,
+      "median_paired_speedup": 1.0053983718240789,
+      "bootstrap_95_percent_interval": [
+        0.9912549573166634,
+        1.0116641494070213
+      ],
+      "median_wall_speedup": 1.0053643179437888,
+      "maximum_allocated_bytes_per_call": 0.0002249471936114997,
+      "maximum_timed_gcs": 0
+    },
+    "zero": {
+      "paired_samples": 15,
+      "before_median_ns": 1.535317,
+      "after_median_ns": 1.659861,
+      "median_paired_speedup": 0.9251173829883329,
+      "bootstrap_95_percent_interval": [
+        0.9186931678526814,
+        0.934212183627585
+      ],
+      "median_wall_speedup": 0.9251196025719783,
+      "maximum_allocated_bytes_per_call": 0.00013294933333333334,
+      "maximum_timed_gcs": 0
+    },
+    "neighbors": {
+      "paired_samples": 15,
+      "before_median_ns": 2.515866,
+      "after_median_ns": 3.052444,
+      "median_paired_speedup": 0.823304352559511,
+      "bootstrap_95_percent_interval": [
+        0.8202821073296162,
+        0.8275864110705117
+      ],
+      "median_wall_speedup": 0.8233676930304987,
+      "maximum_allocated_bytes_per_call": 0.0002584202626697666,
+      "maximum_timed_gcs": 0
+    },
+    "divisible": {
+      "paired_samples": 15,
+      "before_median_ns": 1.944905,
+      "after_median_ns": 1.920486,
+      "median_paired_speedup": 1.0075248929937994,
+      "bootstrap_95_percent_interval": [
+        0.9533933636751111,
+        1.0202813009518297
+      ],
+      "median_wall_speedup": 1.0077478897395122,
+      "maximum_allocated_bytes_per_call": 0.00017124319969176224,
+      "maximum_timed_gcs": 0
+    },
+    "unit": {
+      "paired_samples": 15,
+      "before_median_ns": 1.93376,
+      "after_median_ns": 1.944853,
+      "median_paired_speedup": 0.9917459057316929,
+      "bootstrap_95_percent_interval": [
+        0.8980068573150974,
+        1.0037648448720924
+      ],
+      "median_wall_speedup": 0.9917705633049417,
+      "maximum_allocated_bytes_per_call": 0.00016618666666666667,
+      "maximum_timed_gcs": 0
+    },
+    "fibonacci": {
+      "paired_samples": 15,
+      "before_median_ns": 328.359747,
+      "after_median_ns": 84.492099,
+      "median_paired_speedup": 3.876566924258651,
+      "bootstrap_95_percent_interval": [
+        3.6449460895340695,
+        3.88234436199531
+      ],
+      "median_wall_speedup": 3.8764453930488343,
+      "maximum_allocated_bytes_per_call": 0.007928301854393499,
+      "maximum_timed_gcs": 0
+    },
+    "big128": {
+      "paired_samples": 15,
+      "before_median_ns": 161.068129,
+      "after_median_ns": 131.862401,
+      "median_paired_speedup": 1.2191789839999956,
+      "bootstrap_95_percent_interval": [
+        1.2151308373500052,
+        1.2265868618006335
+      ],
+      "median_wall_speedup": 1.219153119695479,
+      "maximum_allocated_bytes_per_call": 0.010905991820506134,
+      "maximum_timed_gcs": 0
+    },
+    "big256": {
+      "paired_samples": 15,
+      "before_median_ns": 174.48656,
+      "after_median_ns": 151.784305,
+      "median_paired_speedup": 1.1506849316865233,
+      "bootstrap_95_percent_interval": [
+        1.1394130689602529,
+        1.159544614544301
+      ],
+      "median_wall_speedup": 1.1507766817102159,
+      "maximum_allocated_bytes_per_call": 0.012774758782134197,
+      "maximum_timed_gcs": 0
+    },
+    "big1024": {
+      "paired_samples": 15,
+      "before_median_ns": 271.501158,
+      "after_median_ns": 268.359158,
+      "median_paired_speedup": 1.0249819348441986,
+      "bootstrap_95_percent_interval": [
+        0.987229915672344,
+        1.0362477577085916
+      ],
+      "median_wall_speedup": 1.025043837838433,
+      "maximum_allocated_bytes_per_call": 0.0234698457726628,
+      "maximum_timed_gcs": 0
+    },
+    "big4096": {
+      "paired_samples": 15,
+      "before_median_ns": 844.8,
+      "after_median_ns": 819.275,
+      "median_paired_speedup": 1.0382077152793991,
+      "bootstrap_95_percent_interval": [
+        0.9982817765827249,
+        1.0496165195452343
+      ],
+      "median_wall_speedup": 1.038231985789011,
+      "maximum_allocated_bytes_per_call": 0.03116,
+      "maximum_timed_gcs": 0
+    }
+  }
+}
